@@ -10,7 +10,8 @@ on:
     branches: [main]
     paths:
       - "scripts/**"
-      - "assets/me.jpg"
+      - "assets/me.*"
+      - "assets/talks/slides/**"
       - ".github/workflows/build.yml"
 
 permissions:
@@ -31,8 +32,8 @@ jobs:
           python-version: "3.12"
       - run: pip install fonttools brotli pillow
 
-      - name: ASCII art from photo (only if assets/me.jpg exists)
-        run: "[ -f assets/me.jpg ] && python3 scripts/build_ascii.py || echo 'no photo, keeping current ASCII art'"
+      - name: ASCII portrait
+        run: python3 scripts/build_ascii.py
       - name: Terminal card with live stats
         run: python3 scripts/update_card.py
         env:
@@ -42,6 +43,7 @@ jobs:
           python3 scripts/build_buttons.py
           python3 scripts/build_talks.py
           python3 scripts/build_sphere.py
+          python3 scripts/build_slides.py
       - name: Activity graph and stats card
         run: python3 scripts/build_activity.py
         env:

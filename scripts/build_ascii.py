@@ -3,8 +3,10 @@
     pip install pillow && python3 scripts/build_ascii.py && python3 scripts/update_card.py
 
 Two modes:
-  * assets/me.jpg exists  -> ASCII portrait of the photo. Tune BOX (crop, in photo pixels) and GAMMA.
-  * no photo              -> a security shield with a keyhole.
+  * assets/me.png (transparent background) or assets/me.jpg exists -> ASCII portrait.
+    A transparent PNG gives the cleanest outline; with a JPG the backdrop colour is guessed
+    from the corners. Tune BOX (crop), GAMMA (shadow lift) and EQUALISE (facial detail).
+  * no photo -> a security shield with a keyhole.
 """
 import math, os
 from PIL import Image, ImageDraw, ImageFilter
@@ -15,14 +17,23 @@ CELL_W, CELL_H = 7.2, 14
 RAMP = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"   # light -> dense
 
 # portrait mode
-PHOTO = os.path.join(ROOT, 'assets', 'me.jpg')
-BOX = None                      # (left, top, right, bottom); None = centred crop at the grid's aspect ratio
-GAMMA = 0.7
-BG_TOLERANCE = 38               # how far a pixel must be from the backdrop colour to count as "you"
+PHOTOS = [os.path.join(ROOT, 'assets', f) for f in ('me.png', 'me.jpg')]
+BOX = (24, 8, 336, 382)         # (left, top, right, bottom) in photo pixels; None = centred crop
+FADE = 0.22                     # bottom share of the portrait that fades out, so the collar doesn't turn into a block
+PORTRAIT_RAMP = " .,:;i1tfLCG08@"  # fewer, clearly stepped glyphs read better for a flat-lit face
+GAMMA = 0.75                    # < 1 lifts the shadows, so dark hair still gets glyphs on the dark card
+EQUALISE = 0.3                  # share of rank-equalised tone mixed in, brings out eyes, brows and beard
+BG_TOLERANCE = 38               # JPG only: distance from the backdrop colour that still counts as backdrop
 
 
-def to_ascii(tone, mask=None):
-    """tone: W x H floats in 0..1 (1 = densest glyph). Returns dark and light variants."""
+def photo():
+    return next((p for p in PHOTOS if os.path.exists(p)), None)
+
+
+def to_ascii(tone, mask=None, ramp=None):
+    """tone: W x H floats in 0..1 (1 = brightest). Dark card: bright = dense. Light card: dark = dense.
+    The emblem (no mask) keeps its shape in both themes."""
+    ramp = ramp or RAMP
     out = {}
     for theme, invert in (('dark', False), ('light', True)):
         rows = []
@@ -30,40 +41,65 @@ def to_ascii(tone, mask=None):
             row = ''
             for x in range(W):
                 t = tone[y][x]
-                if (mask and not mask[y][x]) or t < 0.035:
+                if mask is not None and not mask[y][x]:
+                    row += ' '
+                elif mask is None and t < 0.035:
                     row += ' '
                 else:
-                    v = 1 - t if invert and mask else t      # emblem keeps its shape in both themes
-                    row += RAMP[max(1, round(v * (len(RAMP) - 1)))]
+                    v = 1 - t if (invert and mask is not None) else t
+                    row += ramp[max(1, round(v * (len(ramp) - 1)))]
             rows.append(row.rstrip())
         out[theme] = '\n'.join(rows)
     return out
 
 
-def portrait():
-    img = Image.open(PHOTO).convert('RGB')
+def portrait(path):
+    img = Image.open(path)
+    alpha = img.getchannel('A') if img.mode in ('RGBA', 'LA') else None
+    img = img.convert('RGB')
     if BOX:
-        img = img.crop(BOX)
+        img = img.crop(BOX); alpha = alpha.crop(BOX) if alpha else None
     else:
         target = (W * CELL_W) / (H * CELL_H)
         w, h = img.size
         if w / h > target:
-            nw = int(h * target); img = img.crop(((w - nw) // 2, 0, (w + nw) // 2, h))
+            nw = int(h * target); box = ((w - nw) // 2, 0, (w + nw) // 2, h)
         else:
-            nh = int(w / target); img = img.crop((0, 0, w, nh))     # keep the top: that's where the face is
-    small = img.resize((W, H), Image.BOX)
-    corners = [small.getpixel(p) for p in ((0, 0), (W - 1, 0), (0, H // 2), (W - 1, H // 2))]
-    bg = tuple(sum(c[i] for c in corners) / 4 for i in range(3))
-    mask = []
-    for y in range(H):
-        row = [math.dist(small.getpixel((x, y)), bg) > BG_TOLERANCE for x in range(W)]
-        xs = [x for x, on in enumerate(row) if on]
-        mask.append([bool(xs) and xs[0] <= x <= xs[-1] for x in range(W)])
-    tones = img.convert('L').filter(ImageFilter.UnsharpMask(6, 140, 1)).resize((W, H), Image.BOX)
-    vals = sorted(tones.getpixel((x, y)) for y in range(H) for x in range(W) if mask[y][x])
+            box = (0, 0, w, int(w / target))                 # keep the top: that's where the face is
+        img = img.crop(box); alpha = alpha.crop(box) if alpha else None
+    if alpha:
+        a = alpha.resize((W, H), Image.BOX)
+        mask = [[a.getpixel((x, y)) > 110 for x in range(W)] for y in range(H)]
+    else:
+        small = img.resize((W, H), Image.BOX)
+        corners = [small.getpixel(p) for p in ((0, 0), (W - 1, 0), (0, H // 2), (W - 1, H // 2))]
+        bg = tuple(sum(c[i] for c in corners) / 4 for i in range(3))
+        mask = []
+        for y in range(H):
+            row = [math.dist(small.getpixel((x, y)), bg) > BG_TOLERANCE for x in range(W)]
+            xs = [x for x, on in enumerate(row) if on]
+            mask.append([bool(xs) and xs[0] <= x <= xs[-1] for x in range(W)])
+    tones = (img.convert('L').filter(ImageFilter.GaussianBlur(1.2))
+             .filter(ImageFilter.UnsharpMask(3, 120, 2)).resize((W, H), Image.BOX))
+    cells = sorted(((y, x) for y in range(H) for x in range(W) if mask[y][x]), key=lambda c: tones.getpixel((c[1], c[0])))
+    rank = {c: i / max(1, len(cells) - 1) for i, c in enumerate(cells)}
+    vals = [tones.getpixel((x, y)) for y, x in cells]
     lo, hi = vals[int(len(vals) * .02)], vals[int(len(vals) * .99)]
-    tone = [[min(1, max(0, (tones.getpixel((x, y)) - lo) / max(1, hi - lo))) ** GAMMA for x in range(W)] for y in range(H)]
-    return to_ascii(tone, mask)
+    tone = [[0.0] * W for _ in range(H)]
+    for (y, x) in cells:
+        linear = min(1, max(0, (tones.getpixel((x, y)) - lo) / max(1, hi - lo))) ** GAMMA
+        tone[y][x] = (1 - EQUALISE) * linear + EQUALISE * rank[(y, x)]
+    start = int(H * (1 - FADE))
+    for y in range(start, H):
+        keep = 1 - (y - start + 1) / (H - start + 1)
+        for x in range(W):
+            if mask[y][x]:
+                # thin the collar out from the edges inwards, and soften what is left
+                edge = min(x, W - 1 - x) / (W / 2)
+                if edge < (1 - keep) * 1.1:
+                    mask[y][x] = False
+                tone[y][x] = 0.15 + (tone[y][x] - 0.15) * keep
+    return to_ascii(tone, mask, PORTRAIT_RAMP)
 
 
 def emblem():
@@ -120,9 +156,10 @@ def emblem():
 
 
 if __name__ == '__main__':
-    art = portrait() if os.path.exists(PHOTO) else emblem()
+    src = photo()
+    art = portrait(src) if src else emblem()
     for theme, txt in art.items():
         with open(os.path.join(ROOT, 'scripts', f'ascii_{theme}.txt'), 'w') as f:
             f.write(txt + '\n')
-    print('mode:', 'portrait' if os.path.exists(PHOTO) else 'emblem', '-> scripts/ascii_dark.txt, ascii_light.txt')
+    print('mode:', f'portrait from {os.path.basename(src)}' if src else 'emblem', '-> scripts/ascii_dark.txt, ascii_light.txt')
     print(art['dark'])

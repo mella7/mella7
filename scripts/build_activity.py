@@ -38,7 +38,8 @@ def fetch():
       recent: contributionsCollection(from:$from,to:$to){ contributionCalendar{ weeks{ contributionDays{ date contributionCount } } } }
       thisYear: contributionsCollection(from:$year,to:$to){ totalCommitContributions totalPullRequestContributions
         totalIssueContributions totalPullRequestReviewContributions }
-      pullRequests{ totalCount } followers{ totalCount }
+      pullRequests{ totalCount } followers{ totalCount } issues{ totalCount }
+      publicRepos: repositories(ownerAffiliations:OWNER, privacy:PUBLIC){ totalCount }
       repositoriesContributedTo(contributionTypes:[COMMIT,PULL_REQUEST,ISSUE], first:1){ totalCount }
       repositories(ownerAffiliations:OWNER, isFork:false, first:100){ nodes{ stargazerCount
         languages(first:10, orderBy:{field:SIZE, direction:DESC}){ edges{ size node{ name color } } } } } } }''',
@@ -50,10 +51,16 @@ def fetch():
             n = e['node']['name']
             langs.setdefault(n, [0, e['node']['color'] or '#8b949e'])[0] += e['size']
     y = u['thisYear']
-    stats = [('Commits this year', y['totalCommitContributions']), ('Pull requests', u['pullRequests']['totalCount']),
-             ('Reviews this year', y['totalPullRequestReviewContributions']), ('Issues this year', y['totalIssueContributions']),
-             ('Contributed to', u['repositoriesContributedTo']['totalCount']),
-             ('Stars earned', sum(r['stargazerCount'] for r in u['repositories']['nodes']))]
+    total = sum(n for _, n in (sorted((d['date'], d['contributionCount']) for w in u['recent']['contributionCalendar']['weeks']
+                                      for d in w['contributionDays'])))
+    # candidates in order of preference; zeros are skipped so the panel never shows empty numbers
+    pool = [('Commits this year', y['totalCommitContributions']), ('Pull requests', u['pullRequests']['totalCount']),
+            ('Contributed to', u['repositoriesContributedTo']['totalCount']),
+            ('Stars earned', sum(r['stargazerCount'] for r in u['repositories']['nodes'])),
+            ('Reviews this year', y['totalPullRequestReviewContributions']), ('Issues opened', u['issues']['totalCount']),
+            ('Public repos', u['publicRepos']['totalCount']), ('Followers', u['followers']['totalCount']),
+            (f'Contributions, {DAYS} days', total)]
+    stats = [kv for kv in pool if kv[1]][:6]
     return days, stats, sorted(langs.items(), key=lambda kv: -kv[1][0])[:6]
 
 

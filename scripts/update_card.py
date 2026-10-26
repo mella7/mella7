@@ -34,7 +34,9 @@ INFO = [   # neofetch block. None = blank line. Dots are added automatically.
     ('Focus.Platform', 'operators, GitOps'),
     None,
     ('Certs', 'CKA, CKAD, RHCSA, eJPT'),
-    ('Award', 'Huawei ICT, Global 1st'),
+    ('Previously', 'DevSecOps @ NoLimits Embedded'),
+    ('Speaker', 'ContainerDays, Cloud Identity'),
+    ('Award', 'Huawei ICT, Global 1st Prize'),
 ]
 CONTACT = [
     ('Web', 'mella7.me'),
@@ -63,12 +65,15 @@ SCENES = [
             [('rhcsa   ', V), ('Red Hat             ', T), ('Certified', OK)],
             [('ejpt    ', V), ('INE Security        ', T), ('Certified', OK)],
             [('cks     ', V), ('Linux Foundation    ', T), ('In progress', WARN)],
+            [('# next: Kubestronaut, all five Kubernetes certifications', D)],
         ]),
         ('git log --oneline', [
             [('7e3a91c ', K), ('feat: MSc Informatik, University of Passau', T)],
             [('4b0d2f8 ', K), ('feat: Cloud Security Engineer', T)],
-            [('a1f9e64 ', K), ('feat: Global 1st Prize, Huawei ICT Competition (Shenzhen)', T)],
             [('9c52b07 ', K), ('feat: Diplôme d\'Ingénieur, Informatique, TEK-UP (Mention Bien)', T)],
+            [('a1f9e64 ', K), ('feat: Global 1st Prize, Huawei ICT Competition (Shenzhen)', T)],
+            [('5e07c3d ', K), ('feat: DevSecOps / Cloud Engineering Intern, NoLimits Embedded', T)],
+            [('b38f1e2 ', K), ('feat: Freelance DevSecOps Engineer', T)],
             [('2d8e1aa ', K), ('init: Licence, Réseaux et Services Informatiques, ISET Radès', T)],
         ]),
     ],
@@ -120,9 +125,9 @@ PAD, GAP, COLS = 18, 28, 54
 TYPE, LINE, PAUSE, READ, HOLD = 0.085, 0.09, 1.2, 4.5, 8.0
 THEMES = {
     'dark':  dict(bg='#161b22', border='#30363d', text='#c9d1d9', cc='#5c6672', key='#2dd4bf', value='#a5d6ff',
-                  ok='#3fb950', bad='#ff7b72', warn='#e3b341', prompt='#2dd4bf', art='#2a9d8f'),
+                  ok='#3fb950', bad='#ff7b72', warn='#e3b341', prompt='#2dd4bf', art='#c9d1d9'),
     'light': dict(bg='#f6f8fa', border='#d0d7de', text='#24292f', cc='#a8b3bf', key='#0f766e', value='#0a3069',
-                  ok='#1a7f37', bad='#cf222e', warn='#9a6700', prompt='#0f766e', art='#3d8f86'),
+                  ok='#1a7f37', bad='#cf222e', warn='#9a6700', prompt='#0f766e', art='#24292f'),
 }
 FALLBACK = None   # stats shown as "-" when they can't be fetched
 
