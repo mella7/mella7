@@ -1,0 +1,75 @@
+name: Build profile graphics
+
+# Rebuilds every generated SVG: the terminal card (with live stats), buttons, talk cards,
+# the stack sphere and its interactive page, the activity graph, stats card and trophies.
+on:
+  schedule:
+    - cron: "17 4 * * *"   # daily, 04:17 UTC
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/**"
+      - "assets/me.jpg"
+      - ".github/workflows/build.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-graphics
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - run: pip install fonttools brotli pillow
+
+      - name: ASCII art from photo (only if assets/me.jpg exists)
+        run: "[ -f assets/me.jpg ] && python3 scripts/build_ascii.py || echo 'no photo, keeping current ASCII art'"
+      - name: Terminal card with live stats
+        run: python3 scripts/update_card.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Buttons, talk cards, stack sphere
+        run: |
+          python3 scripts/build_buttons.py
+          python3 scripts/build_talks.py
+          python3 scripts/build_sphere.py
+      - name: Activity graph and stats card
+        run: python3 scripts/build_activity.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trophies (light)
+        uses: ryo-ma/github-profile-trophy@e3c89df995e92e67cdd4b2acaab9d974583dc1f7 # master
+        continue-on-error: true
+        with:
+          username: ${{ github.repository_owner }}
+          output_path: assets/trophies-light.svg
+          theme: flat
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Trophies (dark)
+        uses: ryo-ma/github-profile-trophy@e3c89df995e92e67cdd4b2acaab9d974583dc1f7 # master
+        continue-on-error: true
+        with:
+          username: ${{ github.repository_owner }}
+          output_path: assets/trophies-dark.svg
+          theme: darkhub
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit if anything changed
+        if: ${{ !cancelled() }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A dark_mode.svg light_mode.svg assets docs scripts/ascii_*.txt
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: rebuild profile graphics"
+          git pull --rebase && git push
