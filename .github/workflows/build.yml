@@ -50,7 +50,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Trophies (light)
-        uses: ryo-ma/github-profile-trophy@e3c89df995e92e67cdd4b2acaab9d974583dc1f7 # master
+        uses: ryo-ma/github-profile-trophy@43736b50a82fca73c8df1c81abb40aa03519975c # master
         continue-on-error: true
         with:
           username: ${{ github.repository_owner }}
@@ -58,7 +58,7 @@ jobs:
           theme: flat
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Trophies (dark)
-        uses: ryo-ma/github-profile-trophy@e3c89df995e92e67cdd4b2acaab9d974583dc1f7 # master
+        uses: ryo-ma/github-profile-trophy@43736b50a82fca73c8df1c81abb40aa03519975c # master
         continue-on-error: true
         with:
           username: ${{ github.repository_owner }}
