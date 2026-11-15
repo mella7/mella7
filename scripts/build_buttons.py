@@ -11,7 +11,7 @@ LINKS = [
     ('LinkedIn', 'MellahMedAli', 'https://www.linkedin.com/in/MellahMedAli', '#0A66C2', 'si:linkedin'),
     ('Medium', '@mellahmohamedali', 'https://medium.com/@mellahmohamedali', 'mono', 'si:medium'),
     ('Website', 'mella7.me', 'https://mella7.me', 'accent', 'globe'),
-    ('Email', 'say hello', 'mailto:mellah.mohamedali@outlook.com', 'accent', 'mail'),
+    ('Email', 'say hello', 'mailto:med.ali@mella7.me', 'accent', 'mail'),
 ]
 THEMES = {
     'dark':  dict(bg='#161b22', border='#30363d', title='#f0f6fc', muted='#8b949e', mono_bg='#f0f6fc', mono_fg='#0d1117',

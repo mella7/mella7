@@ -1,13 +1,13 @@
 """Builds the terminal card at the top of the profile (dark_mode.svg, light_mode.svg).
 
-The card plays a short shell session: `whoami`, `neofetch` with the ASCII art from
-scripts/ascii_*.txt, then a few scenes, each one starting with `clear`. Everything is SMIL,
+The card plays a short shell session: `whoami`, `neofetch` with the dot portrait from
+scripts/portrait_*.svgfrag (see build_portrait.py), then a few scenes, each one starting with `clear`. Everything is SMIL,
 so it animates on github.com without JavaScript, and loops forever.
 
     pip install fonttools brotli && python3 scripts/update_card.py
 In Actions, GITHUB_TOKEN is set and the GitHub stats are fetched live from the GraphQL API.
 """
-import base64, html, io, json, os, urllib.request
+import base64, html, io, json, os, re, urllib.request
 from fontTools import subset
 from fontTools.ttLib import TTFont
 
@@ -109,7 +109,7 @@ SCENES = [
             [('web       ', K), ('https://mella7.me', V)],
             [('linkedin  ', K), ('MellahMedAli', V)],
             [('medium    ', K), ('@mellahmohamedali', V)],
-            [('mail      ', K), ('mellah.mohamedali@outlook.com', V)],
+            [('mail      ', K), ('med.ali@mella7.me', V)],
         ]),
         ('./open-to-work.sh', [
             [('Junior DevOps, DevSecOps and Platform Engineering roles.', OK)],
@@ -120,14 +120,13 @@ SCENES = [
 
 # ============================================================ style
 FS, LH, CW = 16, 20, 9.6          # JetBrains Mono: advance is 0.6 em
-AFS, ALH, ACW = 12, 14, 7.2       # ASCII art is drawn smaller
 PAD, GAP, COLS = 18, 28, 54
 TYPE, LINE, PAUSE, READ, HOLD = 0.085, 0.09, 1.2, 4.5, 8.0
 THEMES = {
     'dark':  dict(bg='#161b22', border='#30363d', text='#c9d1d9', cc='#5c6672', key='#2dd4bf', value='#a5d6ff',
-                  ok='#3fb950', bad='#ff7b72', warn='#e3b341', prompt='#2dd4bf', art='#c9d1d9'),
+                  ok='#3fb950', bad='#ff7b72', warn='#e3b341', prompt='#2dd4bf'),
     'light': dict(bg='#f6f8fa', border='#d0d7de', text='#24292f', cc='#a8b3bf', key='#0f766e', value='#0a3069',
-                  ok='#1a7f37', bad='#cf222e', warn='#9a6700', prompt='#0f766e', art='#24292f'),
+                  ok='#1a7f37', bad='#cf222e', warn='#9a6700', prompt='#0f766e'),
 }
 FALLBACK = None   # stats shown as "-" when they can't be fetched
 
@@ -184,11 +183,11 @@ def pair(k1, v1, k2, v2):
 class Card:
     def __init__(self, theme, art):
         self.c = THEMES[theme]
-        self.art = art
+        self.art = art.split('\n', 1)[1].strip()               # dot paths; the first line holds the size
+        self.aw, self.ah = map(int, re.match(r'<!-- (\d+)x(\d+) -->', art).groups())
         self.els, self.t, self.n = [], 0.6, 0
         self.chars = set()
-        aw = max(len(l) for l in art) * ACW
-        self.rx = PAD + aw + GAP
+        self.rx = PAD + self.aw + GAP
         self.W = int(self.rx + COLS * CW + PAD)
 
     def row(self, r):
@@ -244,7 +243,7 @@ class Card:
     # --- session
     def build(self, stats):
         info = info_lines(stats)
-        block_h = max(len(info) * LH, len(self.art) * ALH)
+        block_h = max(len(info) * LH, self.ah)
         first = len(self.els)
         # whoami
         self.command(self.row(0), 'whoami')
@@ -253,15 +252,19 @@ class Card:
         self.command(self.row(2), 'neofetch')
         top = self.row(3) - 6
         t0 = self.t
-        ay = top + (block_h - len(self.art) * ALH) / 2 + ALH * .8
-        for i, l in enumerate(self.art):
-            self.t = t0 + i * .035
-            self.line(PAD, ay + i * ALH, [(l, 'art')], size=AFS)
+        # the portrait is wiped in from the top, the way a terminal paints an inline image
+        ay, wipe = top + (block_h - self.ah) / 2, 1.3
+        self.els.append(
+            f'<clipPath id="pc"><rect x="{PAD}" y="{ay:.1f}" width="{self.aw}" height="0">'
+            f'<set attributeName="height" to="0" begin="clk.begin" fill="freeze"/>'
+            f'<animate attributeName="height" from="0" to="{self.ah}" begin="clk.begin+{t0:.2f}s" dur="{wipe}s" fill="freeze"/>'
+            f'</rect></clipPath><g clip-path="url(#pc)"><g transform="translate({PAD},{ay:.1f})" '
+            f'fill="none" stroke-linecap="round">{self.art}</g></g>')
         for j, segs in enumerate(info):
             self.t = t0 + j * LINE
             if segs:
                 self.line(self.rx, top + 15 + j * LH, segs)
-        self.t = t0 + max(len(self.art) * .035, len(info) * LINE) + 0.6
+        self.t = t0 + max(wipe, len(info) * LINE) + 0.6
         r = int((top + block_h - PAD - 14) / LH) + 2
         heights = [self.row(r)]
         for scene in SCENES:
@@ -307,7 +310,7 @@ class Card:
 if __name__ == '__main__':
     stats = fetch_stats()
     for theme in THEMES:
-        art = open(os.path.join(ROOT, 'scripts', f'ascii_{theme}.txt')).read().rstrip('\n').split('\n')
+        art = open(os.path.join(ROOT, 'scripts', f'portrait_{theme}.svgfrag')).read()
         with open(os.path.join(ROOT, f'{theme}_mode.svg'), 'w') as f:
             f.write(Card(theme, art).build(stats))
     print('card built, stats:', stats)

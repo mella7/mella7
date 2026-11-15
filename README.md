@@ -11,19 +11,45 @@
   <a href="https://www.linkedin.com/in/MellahMedAli"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/buttons/linkedin-dark.svg"><img src="assets/buttons/linkedin-light.svg" width="23.5%" alt="LinkedIn: MellahMedAli"></picture></a>
   <a href="https://medium.com/@mellahmohamedali"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/buttons/medium-dark.svg"><img src="assets/buttons/medium-light.svg" width="23.5%" alt="Medium: @mellahmohamedali"></picture></a>
   <a href="https://mella7.me"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/buttons/website-dark.svg"><img src="assets/buttons/website-light.svg" width="23.5%" alt="Website: mella7.me"></picture></a>
-  <a href="mailto:mellah.mohamedali@outlook.com"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/buttons/email-dark.svg"><img src="assets/buttons/email-light.svg" width="23.5%" alt="Email: say hello"></picture></a>
+  <a href="mailto:med.ali@mella7.me"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/buttons/email-dark.svg"><img src="assets/buttons/email-light.svg" width="23.5%" alt="Email: say hello"></picture></a>
 </p>
 
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="https://streak-stats.demolab.com/?user=mella7&background=161b22&border=30363d&stroke=30363d&ring=2dd4bf&fire=2dd4bf&currStreakNum=f0f6fc&sideNums=c9d1d9&currStreakLabel=2dd4bf&sideLabels=c9d1d9&dates=8b949e"><img src="https://streak-stats.demolab.com/?user=mella7&background=f6f8fa&border=d0d7de&stroke=d0d7de&ring=0f766e&fire=0f766e&currStreakNum=1f2328&sideNums=24292f&currStreakLabel=0f766e&sideLabels=24292f&dates=59636e" alt="Total contributions and current streak"></picture>
-</p>
+## Hi, I'm Mohamed Ali
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/mella7/mella7/output/github-snake-dark.svg">
-    <img alt="Snake eating my contribution graph" src="https://raw.githubusercontent.com/mella7/mella7/output/github-snake.svg">
-  </picture>
-</p>
+I'm a cloud security engineer from Tunisia, based in Germany. I work on Kubernetes platforms, mostly on the part people skip until something breaks: what a container is really doing once it runs, and how much a pipeline or a service account is allowed to touch.
+
+Most of what I build starts from one of three questions:
+
+- **Would we notice?** Runtime detection with eBPF, Tetragon and Falco, and cutting the alert noise down to what a person has to look at.
+- **Who can do what?** CI/CD and workload identity. A deploy pipeline that can read every secret in the cluster is an identity with far too much power, and most clusters have one.
+- **Can a team get a namespace without getting the keys?** Operators, GitOps, and guardrails that are checked by code, not by a wiki page.
+
+I hold CKA, CKAD, RHCSA and eJPT, and I'm preparing CKS. In 2026 I spoke at ContainerDays Hamburg and the Cloud Identity Summit, and won the Global 1st Prize in the Computing Track of the Huawei ICT Competition in Shenzhen.
+
+> **I'm looking for a junior or working student role** in DevOps, DevSecOps or platform engineering. Switzerland, Luxembourg or Germany, and I'm open to other places for the right team. I work in English and French, and my German is at B1. The fastest way to reach me is [med.ali@mella7.me](mailto:med.ali@mella7.me).
+
+## Things I built
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <a href="https://github.com/mella7/project-claim"><img src="https://raw.githubusercontent.com/mella7/project-claim/main/docs/demo.gif" alt="ProjectClaim demo: a claim becomes a namespace, a deleted quota comes back, and a second project waits for budget"></a>
+      <h3><a href="https://github.com/mella7/project-claim">ProjectClaim</a></h3>
+      A Kubernetes operator for self-service namespaces on OpenShift, OKD and plain Kubernetes. A team writes one small claim and gets a namespace with its quota, role bindings, Pod Security level and network isolation, charged to the team's budget. Edit any of it by hand and the operator puts it back within about a second.
+      <br><br>
+      <sub>Go · controller-runtime · CRDs · CEL validation</sub>
+    </td>
+    <td width="50%" valign="top">
+      <a href="https://github.com/mella7/cloudstack-dc"><img src="https://raw.githubusercontent.com/mella7/cloudstack-dc/main/docs/img/demo.gif" alt="cloudstack-dc demo: drawing a topology, hitting a guardrail, reviewing the plan and watching it apply"></a>
+      <h3><a href="https://github.com/mella7/cloudstack-dc">cloudstack-dc</a></h3>
+      A self-service portal for an Apache CloudStack lab. You draw networks and machines on a canvas, the portal writes the Terraform and shows you the plan, and nothing is created until a person approves it. Quotas and policies are checked while you draw.
+      <br><br>
+      <sub>Python · FastAPI · React · Terraform</sub>
+    </td>
+  </tr>
+</table>
+
+On my desk right now: an MCP server that triages Falco alerts and joins them with RBAC, and `mcp-sentinel`, a least-privilege auditor for MCP servers running in Kubernetes. Both grew out of the talks below.
 
 ## Talks
 
@@ -51,28 +77,22 @@
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="profile-3d-contrib/profile-night-rainbow.svg"><img src="profile-3d-contrib/profile-green-animate.svg" alt="3D contribution graph with contribution radar and languages" width="100%"></picture>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg"><img src="assets/stats-light.svg" alt="GitHub stats and top languages" width="100%"></picture>
-
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/activity-dark.svg"><img src="assets/activity-light.svg" alt="Contributions in the last 31 days" width="100%"></picture>
-
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/trophies-dark.svg"><img src="assets/trophies-light.svg" alt="GitHub trophies"></picture>
-</p>
 
 <details>
 <summary><b>How this page builds itself</b></summary>
 <br>
 
-Nothing here is a screenshot. Every graphic is an SVG generated by the scripts in [`scripts/`](scripts) and committed back by GitHub Actions, daily and on every push. Actions are pinned to commit SHAs and kept current by Dependabot.
+Nothing here is a screenshot. Every graphic is an SVG generated by the scripts in [`scripts/`](scripts) and committed back by GitHub Actions, daily and on every push. The portrait in the terminal is my photo redrawn as about 5,900 dots. Actions are pinned to commit SHAs and kept current by Dependabot.
 
 ```mermaid
 flowchart LR
   trigger([daily cron or push]) --> build[Build profile graphics]
   build -->|GraphQL| api[(GitHub API)]
-  build --> card[terminal card<br>with live stats]
+  build --> card[terminal card<br>dot portrait, live stats]
   build --> media[buttons, talk cards,<br>slide preview]
   build --> sphere[stack sphere] --> pages[GitHub Pages<br>interactive sphere]
-  build --> charts[stats, activity,<br>trophies]
+  build --> charts[stats, activity]
   trigger --> snake[snake] --> out[(output branch)]
   trigger --> graph3d[3D contribution graph]
   card & media & sphere & charts & graph3d & out --> readme[README.md]
@@ -80,4 +100,11 @@ flowchart LR
 
 </details>
 
-<p align="center"><sub><code>kubectl logs -f mella7</code> · every graphic here is built by <a href="scripts">scripts/</a> and refreshed daily by GitHub Actions</sub></p>
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/mella7/mella7/output/github-snake-dark.svg">
+    <img alt="Snake eating my contribution graph" src="https://raw.githubusercontent.com/mella7/mella7/output/github-snake.svg">
+  </picture>
+</p>
+
+<p align="center"><sub><code>kubectl logs -f mella7</code> · built by <a href="scripts">scripts/</a>, refreshed daily by GitHub Actions</sub></p>
