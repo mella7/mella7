@@ -18,12 +18,6 @@
 
 I'm a cloud security engineer from Tunisia, based in Germany. I work on Kubernetes platforms, mostly on the part people skip until something breaks: what a container is really doing once it runs, and how much a pipeline or a service account is allowed to touch.
 
-Most of what I build starts from one of three questions:
-
-- **Would we notice?** Runtime detection with eBPF, Tetragon and Falco, and cutting the alert noise down to what a person has to look at.
-- **Who can do what?** CI/CD and workload identity. A deploy pipeline that can read every secret in the cluster is an identity with far too much power, and most clusters have one.
-- **Can a team get a namespace without getting the keys?** Operators, GitOps, and guardrails that are checked by code, not by a wiki page.
-
 I hold CKA, CKAD, RHCSA and eJPT, and I'm preparing CKS. In 2026 I spoke at ContainerDays Hamburg and the Cloud Identity Summit, and won the Global 1st Prize in the Computing Track of the Huawei ICT Competition in Shenzhen.
 
 > **I'm looking for a junior or working student role** in DevOps, DevSecOps or platform engineering. Switzerland, Luxembourg or Germany, and I'm open to other places for the right team. I work in English and French, and my German is at B1. The fastest way to reach me is [med.ali@mella7.me](mailto:med.ali@mella7.me).
